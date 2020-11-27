@@ -10,6 +10,7 @@ const port = 3000
 
 app.engine('handlebars', exhbs({ defaultLayout: 'main' }))
 app.set('view engine', 'handlebars')
+app.use('/upload', express.static(__dirname + '/upload'))
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(session({ secret: 'secret', resave: false, saveUninitialized: false }))
 app.use(methodOverride('_method'))
