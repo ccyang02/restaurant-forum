@@ -8,6 +8,10 @@ const methodOverride = require('method-override')
 const app = express()
 const port = process.env.PORT || 3000
 
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config()
+}
+
 app.engine('handlebars', exhbs({ defaultLayout: 'main' }))
 app.set('view engine', 'handlebars')
 app.use('/upload', express.static(__dirname + '/upload'))
