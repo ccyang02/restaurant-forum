@@ -19,6 +19,6 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Restaurant',
-  });
-  return Restaurant;
-};
+  })
+  return Restaurant
+}
