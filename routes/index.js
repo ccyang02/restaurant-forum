@@ -31,7 +31,9 @@ module.exports = (app, passport) => {
   app.get('/restaurants/:id', authenticated, restController.getRestaurant)
 
   // front: comment
+  app.delete('/comments/:id', authenticatedAdmin, commentController.deleteComment)
   app.post('/comments', authenticated, commentController.postComment)
+
 
   // admin
   app.put('/admin/users/:id/toggleAdmin', authenticatedAdmin, adminController.putUsers)
