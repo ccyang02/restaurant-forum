@@ -6,11 +6,27 @@
     <ul class="list-unstyled">
       <li>{{profile.name}}</li>
       <li>{{profile.email}}</li>
+      <li><strong>{{profile.Comments.length}}</strong> 已評論餐廳</li>
       <li>
         {{#ifCond user.id profile.id}}
         <a class="btn btn-primary mt-2" href="/users/{{profile.id}}/edit">edit</a>
         {{/ifCond}}
       </li>
     </ul>
+  </div>
+
+  <div class="col-md-12 mt-3">
+    <div class="card">
+      <div class="card-header">
+        <strong>{{profile.Comments.length}}</strong> 已評論餐廳
+      </div>
+
+      <div class="card-body">
+        {{#each profile.Comments}}
+        <a href="/restaurants/{{this.RestaurantId}}"><img src="{{this.Restaurant.image}}" width="50" height="50"
+            class="m-1"></a>
+        {{/each}}
+      </div>
+    </div>
   </div>
 </div>

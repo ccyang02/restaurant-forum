@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs')
 const db = require('../models')
 const User = db.User
+const Comment = db.Comment
+const Restaurant = db.Restaurant
 const imgur = require('imgur-node-api')
 const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 
@@ -49,7 +51,9 @@ const userController = {
   },
 
   getUser: (req, res) => {
-    User.findByPk(req.params.id).then(user => {
+    User.findByPk(req.params.id, { include: [Comment, { model: Comment, include: [Restaurant] }] }).then(user => {
+      console.log('>>>>>>>')
+      console.log(user.Comments[0].Restaurant)
       return res.render('user', { profile: user.toJSON() })
     })
   },
