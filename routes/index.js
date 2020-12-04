@@ -6,7 +6,6 @@ const commentController = require('../controllers/commentController.js')
 
 const helper = require('../_helpers')
 const multer = require('multer')
-const comment = require('../models/comment.js')
 const upload = multer({ dest: 'temp/' })
 
 module.exports = (app, passport) => {
