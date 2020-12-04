@@ -32,7 +32,10 @@ const adminController = {
     return Restaurant.findAll({
       raw: true,
       nest: true,
-      include: [Category]
+      include: [Category],
+      order: [
+        ['CreatedAt', 'DESC'],
+      ],
     }).then(restaurants => {
       return res.render('admin/restaurants', { restaurants: restaurants })
     })
