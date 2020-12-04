@@ -6,23 +6,24 @@ const Comment = db.Comment
 const pageLimit = 10
 
 const restController = {
-  getRestaurants: (req, res) => {
-    let offset = 0
-    const whereQuery = {}
-    let categoryId = ''
-    if (req.query.page) {
-      offset = (req.query.page - 1) * pageLimit
-    }
-    if (req.query.categoryId) {
-      categoryId = Number(req.query.categoryId)
-      whereQuery.categoryId = categoryId
-    }
-    Restaurant.findAndCountAll({
-      include: Category,
-      where: whereQuery,
-      offset: offset,
-      limit: pageLimit
-    }).then(result => {
+  getRestaurants: async (req, res, next) => {
+    try {
+      let offset = 0
+      const whereQuery = {}
+      let categoryId = ''
+      if (req.query.page) {
+        offset = (req.query.page - 1) * pageLimit
+      }
+      if (req.query.categoryId) {
+        categoryId = Number(req.query.categoryId)
+        whereQuery.categoryId = categoryId
+      }
+      const result = await Restaurant.findAndCountAll({
+        include: Category,
+        where: whereQuery,
+        offset: offset,
+        limit: pageLimit
+      })
       // data for pagination
       const page = Number(req.query.page) || 1
       const pages = Math.ceil(result.count / pageLimit)
@@ -36,64 +37,70 @@ const restController = {
         description: r.dataValues.description.substring(0, 50),
         categoryName: r.dataValues.Category.name
       }))
-      Category.findAll({
-        raw: true,
-        nest: true
-      }).then(categories => {
-        return res.render('restaurants', {
-          restaurants: data,
-          categories: categories,
-          categoryId: categoryId,
-          page: page,
-          totalPage: totalPage,
-          prev: prev,
-          next: next
-        })
+
+      const categories = await Category.findAll({ raw: true, nest: true })
+
+      return res.render('restaurants', {
+        restaurants: data,
+        categories: categories,
+        categoryId: categoryId,
+        page: page,
+        totalPage: totalPage,
+        prev: prev,
+        next: next
       })
-    })
+    } catch (error) {
+      next(error)
+    }
   },
 
-  getRestaurant: (req, res) => {
-    return Restaurant.findByPk(req.params.id, {
-      include: [Category,
-        { model: Comment, include: [User] }]
-    }).then(restaurant => {
-      // console.log(restaurant.Comments[0].dataValues)
+  getRestaurant: async (req, res, next) => {
+    try {
+      const restaurant = await Restaurant.findByPk(req.params.id, {
+        include: [Category, { model: Comment, include: [User] }]
+      })
+      await restaurant.increment('viewCounts')
       return res.render('restaurant', {
         restaurant: restaurant.toJSON()
       })
-    })
+    } catch (error) {
+      next(error)
+    }
   },
 
-  getFeeds: (req, res) => {
-    return Promise.all([
-      Restaurant.findAll({
+  getFeeds: async (req, res, next) => {
+    try {
+      const restaurants = await Restaurant.findAll({
         limit: 10,
         raw: true,
         nest: true,
         order: [['createdAt', 'DESC']],
         include: [Category]
-      }),
-      Comment.findAll({
+      })
+      const comments = await Comment.findAll({
         limit: 10,
         raw: true,
         nest: true,
         order: [['createdAt', 'DESC']],
         include: [User, Restaurant]
       })
-    ]).then(([restaurants, comments]) => {
+      Promise.all([restaurants, comments])
       return res.render('feeds', {
         restaurants: restaurants,
         comments: comments
       })
-    })
+    } catch (error) {
+      next(error)
+    }
   },
 
-  getDashboard: (req, res) => {
-    Restaurant.findByPk(req.params.id, { include: [Category, { model: Comment, include: [User] }] })
-      .then(restaurant => {
-        return res.render('dashboard', { restaurant: restaurant.toJSON() })
-      })
+  getDashboard: async (req, res, next) => {
+    try {
+      const restaurant = await Restaurant.findByPk(req.params.id, { include: [Category, { model: Comment, include: [User] }] })
+      return res.render('dashboard', { restaurant: restaurant.toJSON() })
+    } catch (error) {
+      next(error)
+    }
   },
 }
 
