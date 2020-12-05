@@ -59,8 +59,19 @@ const userController = {
 
   getUser: async (req, res, next) => {
     try {
-      const user = await User.findByPk(req.params.id, { include: [Comment, { model: Comment, include: [Restaurant] }] })
-      return res.render('user', { profile: user.toJSON() })
+      const user = await User.findByPk(req.params.id, {
+        include: [Comment,
+          { model: Comment, include: [Restaurant] },
+          { model: Restaurant, as: 'FavoritedRestaurants' },
+          { model: User, as: 'Followers' },
+          { model: User, as: 'Followings' }],
+      })
+      const userData = user.toJSON()
+      cleanComments = {}
+      // handling duplicated comments for the same restaurants
+      userData.Comments.forEach(data => cleanComments[data.RestaurantId] = data)
+      userData.Comments = Object.values(cleanComments)
+      return res.render('user', { profile: userData })
     } catch (error) {
       next(error)
     }
