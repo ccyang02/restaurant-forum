@@ -9,6 +9,8 @@ const Followship = db.Followship
 const imgur = require('imgur-node-api')
 const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 const helper = require('../_helpers')
+const sequelize = require('sequelize')
+const restaurant = require('../models/restaurant')
 
 const userController = {
   signUpPage: (req, res) => {
@@ -193,6 +195,40 @@ const userController = {
       })
       await followship.destroy()
       return res.redirect('back')
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  getTopRestaurant: async (req, res, next) => {
+    try {
+      const restaurants = await Restaurant.findAll({
+        attributes: {
+          include: [
+            [sequelize.literal('(SELECT COUNT(*) FROM Favorites WHERE Favorites.RestaurantId = Restaurant.id)'), 'FavoritedCount']
+          ]
+        },
+        order: [
+          [sequelize.literal('FavoritedCount'), 'DESC']
+        ],
+        limit: 10,
+        raw: true,
+        nest: true,
+      })
+
+      restIds = restaurants.map(rest => rest.id)
+      const favorite = await Favorite.findAll({
+        where: {
+          UserId: helper.getUser(req).id,
+          RestaurantId: restIds,
+        },
+      })
+
+      const data = restaurants.map(restaurant => ({
+        ...restaurant,
+        isFavorited: favorite.map(f => f.RestaurantId).includes(restaurant.id)
+      }))
+      return res.render('topRestaurant', { restaurants: data })
     } catch (error) {
       next(error)
     }
