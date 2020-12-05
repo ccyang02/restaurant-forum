@@ -5,6 +5,7 @@ const Comment = db.Comment
 const Restaurant = db.Restaurant
 const Favorite = db.Favorite
 const Like = db.Like
+const Followship = db.Followship
 const imgur = require('imgur-node-api')
 const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 const helper = require('../_helpers')
@@ -161,7 +162,7 @@ const userController = {
       users = users.map(user => ({
         ...user.dataValues,
         FollowerCount: user.Followers.length,
-        isFollowed: req.user.Followings.map(d => d.id).includes(user.id)
+        isFollowed: helper.getUser(req).Followings.map(d => d.id).includes(user.id)
       }))
       users = users.sort((a, b) => b.FollowerCount - a.FollowerCount)
       return res.render('topUser', { users: users })
@@ -169,6 +170,33 @@ const userController = {
       next(error)
     }
   },
+
+  addFollowing: async (req, res, next) => {
+    try {
+      await Followship.create({
+        followerId: helper.getUser(req).id,
+        followingId: req.params.userId
+      })
+      return res.redirect('back')
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  removeFollowing: async (req, res, next) => {
+    try {
+      const followship = await Followship.findOne({
+        where: {
+          followerId: helper.getUser(req).id,
+          followingId: req.params.userId
+        }
+      })
+      await followship.destroy()
+      return res.redirect('back')
+    } catch (error) {
+      next(error)
+    }
+  }
 }
 
 
