@@ -10,8 +10,20 @@ const adminService = {
         nest: true,
         include: [Category],
       })
-      // return res.render('admin/restaurants', { restaurants: restaurants })
       return { restaurants: restaurants }
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  getRestaurant: async (req, res, next) => {
+    try {
+      const restaurant = await Restaurant.findByPk(req.params.id, {
+        raw: true,
+        nest: true,
+        include: [Category]
+      })
+      return { restaurant: restaurant }
     } catch (error) {
       next(error)
     }

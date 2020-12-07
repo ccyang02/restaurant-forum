@@ -8,6 +8,11 @@ const adminController = {
     const data = await adminService.getRestaurants(req, res, next)
     return res.json(data)
   },
+
+  getRestaurant: async (req, res, next) => {
+    const data = await adminService.getRestaurant(req, res, next)
+    return res.json(data)
+  },
 }
 
 module.exports = adminController
