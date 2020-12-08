@@ -96,15 +96,28 @@ const userController = {
       const { file } = req
       if (file) {
         imgur.setClientID(IMGUR_CLIENT_ID)
-        imgur.upload(file.path, async (err, img) => {
-          const user = await User.findByPk(req.params.id)
-          await user.update({
-            name: req.body.name,
-            image: file ? img.data.link : user.image
+
+        async function imgurUpload() {
+          return new Promise((resolve, reject) => {
+            imgur.upload(file.path, async (err, img) => {
+              try {
+                const user = await User.findByPk(req.params.id)
+                await user.update({
+                  name: req.body.name,
+                  image: file ? img.data.link : user.image
+                })
+                resolve('Done')
+              } catch (error) {
+                reject(error)
+              }
+            })
           })
-          req.flash('success_messages', 'user was successfully to update')
-          res.redirect(`/users/${req.params.id}`)
-        })
+        }
+
+        await imgurUpload()
+
+        req.flash('success_messages', 'user was successfully to update')
+        res.redirect(`/users/${req.params.id}`)
       } else {
         const user = await User.findByPk(req.params.id)
         await user.update({ name: req.body.name })
