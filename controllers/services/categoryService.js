@@ -18,6 +18,18 @@ const categoryService = {
       next(error)
     }
   },
+
+  postCategory: async (req, res, next) => {
+    try {
+      if (!req.body.name) {
+        return { status: 'error', message: 'name did not exist' }
+      }
+      await Category.create({ name: req.body.name })
+      return { status: 'success', message: '' }
+    } catch (error) {
+      next(error)
+    }
+  },
 }
 
 module.exports = categoryService
