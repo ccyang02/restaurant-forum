@@ -2,6 +2,9 @@ const db = require('../../models')
 const Restaurant = db.Restaurant
 const Category = db.Category
 
+const imgur = require('imgur-node-api')
+const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
+
 const adminService = {
   getRestaurants: async (req, res, next) => {
     try {
@@ -24,6 +27,55 @@ const adminService = {
         include: [Category]
       })
       return { restaurant: restaurant }
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  postRestaurant: async (req, res, next) => {
+    try {
+      if (!req.body.name) {
+        return { status: 'error', message: 'name did not exist.' }
+      }
+      const { file } = req
+      if (file) {
+        imgur.setClientID(IMGUR_CLIENT_ID)
+
+        async function imgurUpload() {
+          return new Promise((resolve, reject) => {
+            imgur.upload(file.path, async (err, img) => {
+              try {
+                await Restaurant.create({
+                  name: req.body.name,
+                  tel: req.body.tel,
+                  address: req.body.address,
+                  opening_hours: req.body.opening_hours,
+                  description: req.body.description,
+                  image: file ? img.data.link : null,
+                  CategoryId: req.body.categoryId
+                })
+                resolve('Done')
+              } catch (error) {
+                reject(error)
+              }
+            })
+          })
+        }
+
+        await imgurUpload()
+        return { status: 'success', message: 'restaurant was successfully created' }
+      } else {
+        await Restaurant.create({
+          name: req.body.name,
+          tel: req.body.tel,
+          address: req.body.address,
+          opening_hours: req.body.opening_hours,
+          description: req.body.description,
+          image: null,
+          CategoryId: req.body.categoryId
+        })
+        return { status: 'success', message: 'restaurant was successfully created' }
+      }
     } catch (error) {
       next(error)
     }

@@ -50,43 +50,13 @@ const adminController = {
   },
 
   postRestaurant: async (req, res, next) => {
-    try {
-      if (!req.body.name) {
-        req.flash('error_messages', "name didn't exist")
-        return res.redirect('back')
-      }
-      const { file } = req
-      if (file) {
-        imgur.setClientID(IMGUR_CLIENT_ID)
-        imgur.upload(file.path, async (err, img) => {
-          await Restaurant.create({
-            name: req.body.name,
-            tel: req.body.tel,
-            address: req.body.address,
-            opening_hours: req.body.opening_hours,
-            description: req.body.description,
-            image: file ? img.data.link : null,
-            CategoryId: req.body.categoryId
-          })
-          req.flash('success_messages', 'restaurant was successfully created')
-          return res.redirect('/admin/restaurants')
-        })
-      } else {
-        await Restaurant.create({
-          name: req.body.name,
-          tel: req.body.tel,
-          address: req.body.address,
-          opening_hours: req.body.opening_hours,
-          description: req.body.description,
-          image: null,
-          CategoryId: req.body.categoryId
-        })
-        req.flash('success_messages', 'restaurant was successfully created')
-        res.redirect('/admin/restaurants')
-      }
-    } catch (error) {
-      next(error)
+    const data = await adminService.postRestaurant(req, res, next)
+    if (data.status === 'error') {
+      req.flash('error_messages', "name didn't exist")
+      return res.redirect('back')
     }
+    req.flash('success_messages', data['message'])
+    res.redirect('/admin/restaurants')
   },
 
   editRestaurant: async (req, res, next) => {
