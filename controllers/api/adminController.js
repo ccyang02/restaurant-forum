@@ -13,6 +13,11 @@ const adminController = {
     const data = await adminService.getRestaurant(req, res, next)
     return res.json(data)
   },
+
+  deleteRestaurant: async (req, res, next) => {
+    const data = await adminService.deleteRestaurant(req, res, next)
+    return res.json(data)
+  },
 }
 
 module.exports = adminController

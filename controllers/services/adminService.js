@@ -28,6 +28,16 @@ const adminService = {
       next(error)
     }
   },
+
+  deleteRestaurant: async (req, res, next) => {
+    try {
+      const restaurant = await Restaurant.findByPk(req.params.id)
+      await restaurant.destroy()
+      return { status: 'success', message: '' }
+    } catch (error) {
+      next(error)
+    }
+  },
 }
 
 module.exports = adminService
