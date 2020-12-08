@@ -10,7 +10,7 @@ const imgur = require('imgur-node-api')
 const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 const helper = require('../_helpers')
 const sequelize = require('sequelize')
-const restaurant = require('../models/restaurant')
+
 
 const userController = {
   signUpPage: (req, res) => {
@@ -87,6 +87,11 @@ const userController = {
   },
 
   putUser: async (req, res, next) => {
+    if (req.params.id != helper.getUser(req).id) {
+      req.flash('error_messages', '您沒有權限更改當前頁面用戶個人資訊！')
+      return res.redirect(`/users/${req.params.id}`)
+    }
+
     try {
       const { file } = req
       if (file) {
