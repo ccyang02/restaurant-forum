@@ -43,6 +43,16 @@ const categoryService = {
       next(error)
     }
   },
+
+  deleteCategory: async (req, res, next) => {
+    try {
+      const category = await Category.findByPk(req.params.id)
+      await category.destroy()
+      return { status: 'success', message: '' }
+    } catch (error) {
+      next(error)
+    }
+  },
 }
 
 module.exports = categoryService

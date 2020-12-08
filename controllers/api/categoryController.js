@@ -16,6 +16,11 @@ const categoryController = {
     const data = await categoryService.putCategory(req, res, next)
     return res.json(data)
   },
+
+  deleteCategory: async (req, res, next) => {
+    const data = await categoryService.deleteCategory(req, res, next)
+    return res.json(data)
+  },
 }
 
 module.exports = categoryController

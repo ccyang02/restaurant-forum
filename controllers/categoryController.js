@@ -27,12 +27,9 @@ let categoryController = {
   },
 
   deleteCategory: async (req, res, next) => {
-    try {
-      const category = await Category.findByPk(req.params.id)
-      await category.destroy()
+    const data = await categoryService.deleteCategory(req, res, next)
+    if (data.status === 'success') {
       return res.redirect('/admin/categories')
-    } catch (error) {
-      next(error)
     }
   },
 }
