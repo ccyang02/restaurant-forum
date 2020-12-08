@@ -30,6 +30,19 @@ const categoryService = {
       next(error)
     }
   },
+
+  putCategory: async (req, res, next) => {
+    try {
+      if (!req.body.name) {
+        return { status: 'error', message: 'name did not exist' }
+      }
+      const category = await Category.findByPk(req.params.id)
+      await category.update(req.body)
+      return { status: 'success', message: '' }
+    } catch (error) {
+      next(error)
+    }
+  },
 }
 
 module.exports = categoryService

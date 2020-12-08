@@ -11,6 +11,11 @@ const categoryController = {
     const data = await categoryService.postCategory(req, res, next)
     return res.json(data)
   },
+
+  putCategory: async (req, res, next) => {
+    const data = await categoryService.putCategory(req, res, next)
+    return res.json(data)
+  },
 }
 
 module.exports = categoryController

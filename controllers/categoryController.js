@@ -18,17 +18,12 @@ let categoryController = {
   },
 
   putCategory: async (req, res, next) => {
-    try {
-      if (!req.body.name) {
-        req.flash('error_messages', 'name didn\'t exist')
-        return res.redirect('back')
-      }
-      const category = await Category.findByPk(req.params.id)
-      await category.update(req.body)
+    const data = await categoryService.putCategory(req, res, next)
+    if (data.status === 'success') {
       return res.redirect('/admin/categories')
-    } catch (error) {
-      next(error)
     }
+    req.flash('error_messages', data.message)
+    return res.redirect('back')
   },
 
   deleteCategory: async (req, res, next) => {
