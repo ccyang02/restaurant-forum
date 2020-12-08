@@ -5,7 +5,7 @@ const Comment = db.Comment
 const Restaurant = db.Restaurant
 const imgur = require('imgur-node-api')
 const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
-
+const helper = require('../_helpers')
 
 const userController = {
   signUpPage: (req, res) => {
@@ -63,6 +63,11 @@ const userController = {
   },
 
   putUser: (req, res) => {
+    if (req.params.id != helper.getUser(req).id) {
+      req.flash('error_messages', '您沒有權限更改當前頁面用戶個人資訊！')
+      return res.redirect(`/users/${req.params.id}`)
+    }
+
     const { file } = req
     if (file) {
       imgur.setClientID(IMGUR_CLIENT_ID)
